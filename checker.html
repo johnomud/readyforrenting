@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en-GB" class="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free Compliance Checker — Ready for Renting</title>
+<meta name="description" content="Check your Renters' Rights Act compliance in under 2 minutes. Free instant score for UK landlords.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFFFFF;--bg-elev:#F8FAFC;--text:#111111;--muted:#64748B;--border:#E2E8F0;--accent:#5B21B6;--accent-hover:#4C1D95;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;--ease:cubic-bezier(0.22,1,0.36,1)}
+html.dark{--bg:#0A0A0A;--bg-elev:#1F2937;--text:#F8FAFC;--muted:#94A3B8;--border:#334155}
+html{scroll-behavior:smooth}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background .2s var(--ease),color .2s var(--ease)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:720px;margin:0 auto;padding:0 24px}
+.muted{color:var(--muted)}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:color-mix(in srgb, var(--bg) 80%, transparent);border-bottom:1px solid var(--border);transition:background .2s var(--ease)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1152px;margin:0 auto;padding:0 24px}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.logo .for{color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.btn-back{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .15s var(--ease)}
+.btn-back:hover{color:var(--text);text-decoration:none}
+.theme-toggle{background:transparent;border:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--muted);transition:background .15s var(--ease)}
+.theme-toggle:hover{background:var(--bg-elev)}
+
+/* Form */
+.checker{padding:64px 0 120px}
+.checker h1{font-size:36px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;text-align:center}
+.checker .subtitle{font-size:17px;color:var(--muted);text-align:center;margin:0 0 48px;line-height:1.6}
+
+.step{display:none}
+.step.active{display:block}
+
+.progress-bar{display:flex;gap:4px;margin-bottom:40px}
+.progress-bar .seg{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s var(--ease)}
+.progress-bar .seg.done{background:var(--accent)}
+.progress-bar .seg.current{background:var(--accent);opacity:.5}
+
+.step-title{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:0 0 6px}
+.step-desc{font-size:15px;color:var(--muted);margin:0 0 24px;line-height:1.6}
+
+label.field{display:block;margin-bottom:20px}
+label.field .label-text{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+label.field input,label.field select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;background:var(--bg);color:var(--text);transition:border-color .15s var(--ease)}
+label.field input:focus,label.field select:focus{outline:none;border-color:var(--accent)}
+
+/* Option cards for selects */
+.option-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:500px){.option-grid{grid-template-columns:1fr}}
+.option-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:600px){.option-grid.cols-4{grid-template-columns:repeat(2,1fr)}}
+
+.opt-card{border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s var(--ease);text-align:center;font-size:14px;font-weight:500;user-select:none}
+.opt-card:hover{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 4%, transparent)}
+.opt-card.selected{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, transparent);color:var(--accent);font-weight:600}
+.opt-card.multi{text-align:left;display:flex;gap:10px;align-items:center}
+.opt-card.multi .check-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;transition:all .15s var(--ease);display:flex;align-items:center;justify-content:center}
+.opt-card.multi.selected .check-box{border-color:var(--accent);background:var(--accent)}
+.opt-card.multi.selected .check-box::after{content:"✓";color:#fff;font-size:12px;font-weight:700}
+
+.btn{display:inline-flex;align-items:center;gap:6px;font-weight:600;border-radius:10px;transition:all .2s var(--ease);cursor:pointer;border:none;font-family:inherit;font-size:15px;padding:14px 28px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-row{display:flex;gap:12px;margin-top:32px}
+
+/* Loading */
+.loading{text-align:center;padding:80px 0}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-size:16px;color:var(--muted)}
+
+/* Results */
+.results{display:none}
+.score-ring{width:160px;height:160px;margin:0 auto 24px;position:relative}
+.score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.score-ring circle{fill:none;stroke-width:8;stroke-linecap:round}
+.score-ring .bg{stroke:var(--border)}
+.score-ring .fill{transition:stroke-dashoffset 1s var(--ease)}
+.score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num .num{font-size:48px;font-weight:700;letter-spacing:-.03em}
+.score-num .out-of{font-size:14px;color:var(--muted)}
+
+.status-badge{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin-bottom:16px}
+.status-Critical{background:color-mix(in srgb, var(--danger) 12%, transparent);color:var(--danger)}
+.status-Needs-Attention{background:color-mix(in srgb, var(--warning) 12%, transparent);color:var(--warning)}
+.status-On-Track{background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--accent)}
+.status-Compliant{background:color-mix(in srgb, var(--success) 12%, transparent);color:var(--success)}
+
+.results-summary{font-size:17px;line-height:1.7;color:var(--muted);text-align:center;max-width:600px;margin:0 auto 40px}
+
+.result-section{margin-bottom:32px}
+.result-section h3{font-size:18px;font-weight:700;margin:0 0 16px;display:flex;align-items:center;gap:8px}
+.result-section h3 .icon{font-size:20px}
+
+.action-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
+.action-card .action-title{font-size:15px;font-weight:600;color:var(--text);margin:0 0 6px}
+.action-card .action-meta{font-size:13px;color:var(--muted);line-height:1.6}
+.action-card .action-meta strong{color:var(--danger);font-weight:600}
+.action-card .cat-tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:color-mix(in srgb, var(--accent) 10%, transparent);color:var(--accent);margin-top:8px}
+
+.positive-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:8px;font-size:15px;color:var(--text);display:flex;gap:10px;align-items:flex-start}
+.positive-card .tick{color:var(--success);font-weight:700;flex-shrink:0}
+
+/* Gated/blurred content */
+.gated{position:relative;overflow:hidden}
+.gated .blur-overlay{filter:blur(6px);pointer-events:none;user-select:none;opacity:.5}
+.gate-cta{position:relative;z-index:2;background:var(--bg-elev);border:2px solid var(--accent);border-radius:16px;padding:32px;text-align:center;margin:-20px 0 32px}
+.gate-cta h3{font-size:20px;font-weight:700;margin:0 0 8px}
+.gate-cta p{font-size:15px;color:var(--muted);margin:0 0 20px;line-height:1.6}
+.gate-cta .btn{font-size:16px;padding:14px 32px}
+
+.disclaimer{font-size:12px;color:var(--muted);line-height:1.6;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);text-align:center}
+
+/* Footer */
+footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
+.foot-bottom{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);max-width:1152px;margin:0 auto;padding:0 24px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="/">Ready <span class="for">for</span> Renting</a>
+    <div class="nav-right">
+      <a class="btn-back" href="/">← Back to home</a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="checker">
+    <h1>Free Compliance Checker</h1>
+    <p class="subtitle">Answer 10 questions about your portfolio. Get an instant compliance score and personalised action plan — free, no sign-up required.</p>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progress">
+      <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+      <div class="seg"></div><div class="seg"></div>
+    </div>
+
+    <!-- STEP 1: About you -->
+    <div class="step active" data-step="1">
+      <p class="step-title">About you</p>
+      <p class="step-desc">We use your name for the report and your email to send a copy. We won't spam you.</p>
+      <label class="field">
+        <span class="label-text">Your name</span>
+        <input type="text" id="f-name" placeholder="e.g. John Smith" autocomplete="name">
+      </label>
+      <label class="field">
+        <span class="label-text">Email address</span>
+        <input type="email" id="f-email" placeholder="you@example.com" autocomplete="email">
+      </label>
+      <label class="field">
+        <span class="label-text">Property location (town or county)</span>
+        <input type="text" id="f-location" placeholder="e.g. Manchester, Greater London">
+      </label>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Portfolio -->
+    <div class="step" data-step="2">
+      <p class="step-title">Your portfolio</p>
+      <p class="step-desc">How many properties do you let, and what tenancy types do you use?</p>
+      <label class="field"><span class="label-text">Number of rental properties</span></label>
+      <div class="option-grid cols-4" data-field="propertyCount" data-mode="single">
+        <div class="opt-card" data-value="1">1</div>
+        <div class="opt-card" data-value="2-4">2–4</div>
+        <div class="opt-card" data-value="5-9">5–9</div>
+        <div class="opt-card" data-value="10+">10+</div>
+      </div>
+      <label class="field"><span class="label-text">Tenancy types (select all that apply)</span></label>
+      <div class="option-grid" data-field="propertyTypes" data-mode="multi">
+        <div class="opt-card multi" data-value="AST"><span class="check-box"></span>Assured Shorthold</div>
+        <div class="opt-card multi" data-value="Periodic"><span class="check-box"></span>Periodic</div>
+        <div class="opt-card multi" data-value="Company let"><span class="check-box"></span>Company let</div>
+        <div class="opt-card multi" data-value="HMO"><span class="check-box"></span>HMO</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Tenancy setup -->
+    <div class="step" data-step="3">
+      <p class="step-title">Tenancy setup</p>
+      <p class="step-desc">Tell us about your current tenancy arrangements.</p>
+      <label class="field"><span class="label-text">Do any tenancies have a fixed-term AST in place?</span></label>
+      <div class="option-grid" data-field="hasAST" data-mode="single">
+        <div class="opt-card" data-value="Yes all">Yes, all of them</div>
+        <div class="opt-card" data-value="Yes some">Yes, some</div>
+        <div class="opt-card" data-value="No">No, all periodic</div>
+        <div class="opt-card" data-value="Unsure">Unsure</div>
+      </div>
+      <label class="field"><span class="label-text">How do you currently increase rent?</span></label>
+      <div class="option-grid" data-field="rentIncrease" data-mode="single">
+        <div class="opt-card" data-value="Informal agreement">Informal agreement</div>
+        <div class="opt-card" data-value="Rent review clause">Rent review clause</div>
+        <div class="opt-card" data-value="Section 13 notice">Section 13 notice</div>
+        <div class="opt-card" data-value="Haven't increased">Haven't increased</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Rent & Section 21 -->
+    <div class="step" data-step="4">
+      <p class="step-title">Rent & possession</p>
+      <p class="step-desc">A couple more questions about rent collection and possession notices.</p>
+      <label class="field"><span class="label-text">Do you take more than 1 month's rent in advance?</span></label>
+      <div class="option-grid" data-field="rentAdvance" data-mode="single">
+        <div class="opt-card" data-value="Yes 2+ months">Yes, 2+ months</div>
+        <div class="opt-card" data-value="Sometimes">Sometimes</div>
+        <div class="opt-card" data-value="No 1 month">No, 1 month only</div>
+        <div class="opt-card" data-value="None">No advance rent</div>
+      </div>
+      <label class="field"><span class="label-text">Have you served a Section 21 notice in the last 12 months?</span></label>
+      <div class="option-grid" data-field="s21" data-mode="single">
+        <div class="opt-card" data-value="Yes currently active">Yes, currently active</div>
+        <div class="opt-card" data-value="Yes completed">Yes, completed</div>
+        <div class="opt-card" data-value="No">No</div>
+        <div class="opt-card" data-value="Planning to">Planning to</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Compliance checklist -->
+    <div class="step" data-step="5">
+      <p class="step-title">Compliance checklist</p>
+      <p class="step-desc">Tick everything you currently have in place. Be honest — this is how we spot the gaps.</p>
+      <div class="option-grid" style="grid-template-columns:1fr" data-field="checks" data-mode="multi">
+        <div class="opt-card multi" data-value="Written tenancy agreement for all properties"><span class="check-box"></span>Written tenancy agreement for all properties</div>
+        <div class="opt-card multi" data-value="Valid Gas Safety Certificate"><span class="check-box"></span>Valid Gas Safety Certificate</div>
+        <div class="opt-card multi" data-value="Valid EPC rated E or above"><span class="check-box"></span>Valid EPC rated E or above</div>
+        <div class="opt-card multi" data-value="Smoke alarms on every floor"><span class="check-box"></span>Smoke alarms on every floor</div>
+        <div class="opt-card multi" data-value="Carbon monoxide detectors where required"><span class="check-box"></span>Carbon monoxide detectors where required</div>
+        <div class="opt-card multi" data-value="Deposit protected within 30 days"><span class="check-box"></span>Deposit protected within 30 days</div>
+        <div class="opt-card multi" data-value="How to Rent guide provided"><span class="check-box"></span>How to Rent guide provided</div>
+        <div class="opt-card multi" data-value="EICR within last 5 years"><span class="check-box"></span>EICR within last 5 years</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="submitChecker()">Get my score →</button>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading" id="loading" style="display:none">
+      <div class="spinner"></div>
+      <p>Analysing your portfolio against the Renters' Rights Act…</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="error-state" style="display:none;text-align:center;padding:60px 0">
+      <p style="font-size:18px;font-weight:600;margin-bottom:8px">Something went wrong</p>
+      <p class="muted" id="error-msg" style="margin-bottom:24px">Please try again.</p>
+      <button class="btn btn-primary" onclick="location.reload()">Try again</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+      <div style="text-align:center;margin-bottom:40px">
+        <div class="score-ring">
+          <svg viewBox="0 0 160 160">
+            <circle class="bg" cx="80" cy="80" r="68"/>
+            <circle class="fill" id="score-circle" cx="80" cy="80" r="68" stroke-dasharray="427.26" stroke-dashoffset="427.26"/>
+          </svg>
+          <div class="score-num">
+            <span class="num" id="score-num">0</span>
+            <span class="out-of">out of 100</span>
+          </div>
+        </div>
+        <div id="status-badge" class="status-badge"></div>
+        <p class="results-summary" id="summary-text"></p>
+      </div>
+
+      <!-- Urgent actions (free: show first 3) -->
+      <div class="result-section" id="urgent-section">
+        <h3><span class="icon">🚨</span> Urgent actions</h3>
+        <div id="urgent-free"></div>
+      </div>
+
+      <!-- Positive notes (free: show all) -->
+      <div class="result-section" id="positive-section">
+        <h3><span class="icon">✅</span> What you're doing right</h3>
+        <div id="positive-list"></div>
+      </div>
+
+      <!-- GATED: remaining urgent + required actions -->
+      <div class="gated" id="gated-section">
+        <div class="blur-overlay" id="gated-blur">
+          <div class="result-section">
+            <h3><span class="icon">📋</span> Full action plan</h3>
+            <div id="gated-actions"></div>
+          </div>
+        </div>
+        <div class="gate-cta">
+          <h3>Unlock your full compliance report</h3>
+          <p>Your complete action plan has <span id="gated-count">0</span> more recommendations — including deadlines, fine amounts, and step-by-step fixes. Get them all instantly with the Document Pack.</p>
+          <a class="btn btn-primary" href="https://buy.stripe.com/6oUeVd24p1FX1k3eWz2Ji03">Get the Document Pack — £29 →</a>
+        </div>
+      </div>
+
+      <p class="disclaimer" id="disclaimer-text"></p>
+
+      <div style="text-align:center;margin-top:32px">
+        <button class="btn btn-ghost" onclick="location.reload()">Run another check</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-bottom">
+    <span>© 2026 Ready for Renting · Made in the UK</span>
+    <span>Compliant. Effortless. Done.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var key='rfr-theme';
+  function apply(t){
+    document.documentElement.classList.toggle('dark',t==='dark');
+    var icon=document.getElementById('theme-icon');
+    if(!icon)return;
+    icon.innerHTML=t==='dark'
+      ?'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+      :'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+  }
+  var saved=localStorage.getItem(key);
+  apply(saved||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+  window.toggleTheme=function(){
+    var next=document.documentElement.classList.contains('dark')?'light':'dark';
+    localStorage.setItem(key,next);
+    apply(next);
+  };
+})();
+
+// ── Form state ────────────────────────────────────────────────────────────────
+var currentStep = 1;
+var totalSteps = 5;
+var formData = {
+  name:'', email:'', location:'',
+  propertyCount:'', propertyTypes:[],
+  hasAST:'', rentIncrease:'', rentAdvance:'', s21:'',
+  checks:[]
+};
+
+// ── Option card clicks ────────────────────────────────────────────────────────
+document.querySelectorAll('.option-grid').forEach(function(grid){
+  var field = grid.dataset.field;
+  var mode = grid.dataset.mode;
+  grid.querySelectorAll('.opt-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      if(mode === 'single'){
+        grid.querySelectorAll('.opt-card').forEach(function(c){c.classList.remove('selected')});
+        card.classList.add('selected');
+        formData[field] = card.dataset.value;
+      } else {
+        card.classList.toggle('selected');
+        var vals = [];
+        grid.querySelectorAll('.opt-card.selected').forEach(function(c){vals.push(c.dataset.value)});
+        formData[field] = vals;
+      }
+    });
+  });
+});
+
+// ── Step navigation ───────────────────────────────────────────────────────────
+function updateProgress(){
+  var segs = document.querySelectorAll('.progress-bar .seg');
+  segs.forEach(function(s,i){
+    s.classList.remove('done','current');
+    if(i < currentStep - 1) s.classList.add('done');
+    if(i === currentStep - 1) s.classList.add('current');
+  });
+}
+
+function showStep(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')});
+  var target = document.querySelector('[data-step="'+n+'"]');
+  if(target) target.classList.add('active');
+  currentStep = n;
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+window.nextStep = function(){
+  // Collect text inputs from step 1
+  if(currentStep === 1){
+    formData.name = document.getElementById('f-name').value.trim();
+    formData.email = document.getElementById('f-email').value.trim();
+    formData.location = document.getElementById('f-location').value.trim();
+  }
+  if(currentStep < totalSteps) showStep(currentStep + 1);
+};
+
+window.prevStep = function(){
+  if(currentStep > 1) showStep(currentStep - 1);
+};
+
+updateProgress();
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+window.submitChecker = function(){
+  // Hide form, show loading
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('progress').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+
+  fetch('/api/report', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ formData: formData })
+  })
+  .then(function(r){
+    if(!r.ok) throw new Error('Server error ('+r.status+')');
+    return r.json();
+  })
+  .then(function(data){
+    if(!data.success || !data.report) throw new Error('Invalid response');
+    renderResults(data.report);
+  })
+  .catch(function(err){
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+    document.getElementById('error-msg').textContent = err.message;
+  });
+};
+
+// ── Render results ────────────────────────────────────────────────────────────
+function renderResults(r){
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+
+  // Score ring
+  var score = r.compliance_score || 0;
+  var circumference = 2 * Math.PI * 68; // ~427.26
+  var offset = circumference - (score / 100) * circumference;
+  var circle = document.getElementById('score-circle');
+  var color = score >= 75 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)';
+  circle.style.stroke = color;
+  setTimeout(function(){ circle.style.strokeDashoffset = offset; }, 100);
+
+  // Animate number
+  var numEl = document.getElementById('score-num');
+  var counter = 0;
+  var step = Math.max(1, Math.floor(score / 40));
+  var timer = setInterval(function(){
+    counter += step;
+    if(counter >= score){ counter = score; clearInterval(timer); }
+    numEl.textContent = counter;
+  }, 30);
+
+  // Status badge
+  var badge = document.getElementById('status-badge');
+  var statusClass = (r.status || '').replace(/\s+/g, '-');
+  badge.className = 'status-badge status-' + statusClass;
+  badge.textContent = r.status;
+
+  // Summary
+  document.getElementById('summary-text').textContent = r.summary || '';
+
+  // Urgent actions — show first 3 free
+  var urgentFree = document.getElementById('urgent-free');
+  var urgents = r.urgent_actions || [];
+  var freeCount = Math.min(3, urgents.length);
+  urgentFree.innerHTML = '';
+  for(var i = 0; i < freeCount; i++){
+    urgentFree.innerHTML += actionCardHTML(urgents[i], true);
+  }
+  if(urgents.length === 0){
+    document.getElementById('urgent-section').style.display = 'none';
+  }
+
+  // Positive notes
+  var posList = document.getElementById('positive-list');
+  var positives = r.positive_notes || [];
+  posList.innerHTML = '';
+  positives.forEach(function(p){
+    posList.innerHTML += '<div class="positive-card"><span class="tick">✓</span><span>'+escHtml(p)+'</span></div>';
+  });
+  if(positives.length === 0){
+    document.getElementById('positive-section').style.display = 'none';
+  }
+
+  // Gated content — remaining urgents + all required actions
+  var gatedActions = document.getElementById('gated-actions');
+  var required = r.required_actions || [];
+  var remainingUrgents = urgents.slice(freeCount);
+  var gatedItems = remainingUrgents.length + required.length;
+
+  if(gatedItems === 0){
+    document.getElementById('gated-section').style.display = 'none';
+  } else {
+    document.getElementById('gated-count').textContent = gatedItems;
+    var gatedHTML = '';
+    remainingUrgents.forEach(function(a){ gatedHTML += actionCardHTML(a, true); });
+    required.forEach(function(a){ gatedHTML += actionCardHTML(a, false); });
+    gatedActions.innerHTML = gatedHTML;
+  }
+
+  // Disclaimer
+  document.getElementById('disclaimer-text').textContent = r.disclaimer || '';
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function actionCardHTML(a, isUrgent){
+  var html = '<div class="action-card">';
+  html += '<p class="action-title">' + escHtml(a.action) + '</p>';
+  html += '<p class="action-meta">';
+  if(isUrgent && a.deadline) html += '<strong>Deadline: ' + escHtml(a.deadline) + '</strong><br>';
+  if(isUrgent && a.consequence) html += escHtml(a.consequence) + '<br>';
+  if(!isUrgent && a.timeline) html += 'Timeline: ' + escHtml(a.timeline) + '<br>';
+  html += '</p>';
+  if(a.category) html += '<span class="cat-tag">' + escHtml(a.category) + '</span>';
+  html += '</div>';
+  return html;
+}
+
+function escHtml(s){
+  if(!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
