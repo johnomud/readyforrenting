@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Your Document Pack - Ready for Renting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            color: #111111;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background-color: #0A0A0A;
+            color: #F8FAFC;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        header {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        body.dark-mode .dark-mode-toggle,
+        .dark-mode-toggle:hover {
+            background-color: #F8FAFC;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background-color: #E2E8F0;
+        }
+
+        .dark-mode-toggle:hover {
+            background-color: #F1F5F9;
+        }
+
+        .dark-mode-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: #111111;
+        }
+
+        body.dark-mode .dark-mode-toggle svg {
+            color: #0A0A0A;
+        }
+
+        .content {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: #5B21B6;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        .subtext {
+            font-size: 16px;
+            color: #64748B;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .subtext {
+            color: #94A3B8;
+        }
+
+        .documents-box {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        body.dark-mode .documents-box {
+            background-color: #1F2937;
+            border-color: #334155;
+        }
+
+        .documents-box h2 {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748B;
+            margin-bottom: 16px;
+        }
+
+        body.dark-mode .documents-box h2 {
+            color: #94A3B8;
+        }
+
+        .documents-list {
+            list-style: none;
+        }
+
+        .documents-list li {
+            font-size: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        body.dark-mode .documents-list li {
+            border-bottom-color: #334155;
+        }
+
+        .documents-list li:last-child {
+            border-bottom: none;
+        }
+
+        .documents-list li::before {
+            content: "✓";
+            color: #5B21B6;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .download-button {
+            background-color: #5B21B6;
+            color: #FFFFFF;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 24px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .download-button:hover {
+            background-color: #6D28D9;
+            transform: translateY(-1px);
+        }
+
+        .download-button:active {
+            transform: translateY(0);
+        }
+
+        .expiration-note {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.6;
+            padding: 16px;
+            background-color: #F8FAFC;
+            border-radius: 8px;
+            border-left: 4px solid #5B21B6;
+        }
+
+        body.dark-mode .expiration-note {
+            background-color: #1F2937;
+            color: #94A3B8;
+        }
+
+        .error-message {
+            background-color: #FEE2E2;
+            border: 1px solid #FECACA;
+            color: #991B1B;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .error-message {
+            background-color: #7F1D1D;
+            border-color: #991B1B;
+            color: #FEE2E2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .documents-box {
+                padding: 24px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            header {
+                top: 16px;
+                right: 16px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+            <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div id="errorContainer" class="hidden">
+                <div class="error-message">
+                    No session found. Please use the download link from your confirmation email.
+                </div>
+            </div>
+
+            <div id="successContainer" class="hidden">
+                <div class="logo">Ready <span>for</span> Renting</div>
+
+                <h1>Your document pack is ready.</h1>
+
+                <p class="subtext">Thank you for your purchase. Click the button below to download all 5 documents.</p>
+
+                <div class="documents-box">
+                    <h2>Included in Your Pack</h2>
+                    <ul class="documents-list">
+                        <li>Tenancy Agreement Template</li>
+                        <li>Deposit Protection Scheme Guide</li>
+                        <li>Property Inspection Checklist</li>
+                        <li>Landlord Insurance Overview</li>
+                        <li>Legal Compliance Checklist</li>
+                    </ul>
+                </div>
+
+                <a id="downloadLink" href="#" class="download-button">Download Now</a>
+
+                <div class="expiration-note">
+                    This link is valid for 48 hours. If it expires, email <strong>help@readyforrenting.uk</strong> for a fresh link.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedDarkMode = localStorage.getItem('darkMode');
+        const isDarkMode = savedDarkMode ? JSON.parse(savedDarkMode) : prefersDark;
+
+        function setDarkMode(enabled) {
+            if (enabled) {
+                document.body.classList.add('dark-mode');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                document.body.classList.remove('dark-mode');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+            localStorage.setItem('darkMode', JSON.stringify(enabled));
+        }
+
+        setDarkMode(isDarkMode);
+
+        darkModeToggle.addEventListener('click', () => {
+            const isCurrentlyDark = document.body.classList.contains('dark-mode');
+            setDarkMode(!isCurrentlyDark);
+        });
+
+        // Session handling
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        const errorContainer = document.getElementById('errorContainer');
+        const successContainer = document.getElementById('successContainer');
+        const downloadLink = document.getElementById('downloadLink');
+
+        if (!sessionId) {
+            errorContainer.classList.remove('hidden');
+        } else {
+            successContainer.classList.remove('hidden');
+            downloadLink.href = `/api/download?session_id=${encodeURIComponent(sessionId)}`;
+
+            // Auto-trigger download after 800ms
+            setTimeout(() => {
+                downloadLink.click();
+            }, 800);
+        }
+    </script>
+</body>
+</html>
