@@ -255,6 +255,7 @@ module.exports = async function(req, res) {
     var session = event.data.object;
     var email = session.customer_details && session.customer_details.email;
     var name = (session.metadata && session.metadata.name) || '';
+    var sessionId = session.id;
     var product = session.metadata && session.metadata.product;
 
     // Fallback: Payment Links don't set metadata.product automatically.
@@ -279,7 +280,6 @@ module.exports = async function(req, res) {
         console.error('[Webhook] Failed to fetch line items:', e.message);
       }
     }
-    var sessionId = session.id;
     var amountTotal = session.amount_total ? session.amount_total / 100 : 0;
 
     console.log('[Webhook] Payment complete:', product, email, '£' + amountTotal);
