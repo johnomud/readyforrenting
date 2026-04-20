@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en-GB" class="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terms of Service — Ready for Renting</title>
+<meta name="description" content="Terms of service for Ready for Renting products and services.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFFFFF;--bg-elev:#F8FAFC;--text:#111111;--muted:#64748B;--border:#E2E8F0;--accent:#5B21B6;--accent-hover:#4C1D95;--ease:cubic-bezier(0.22,1,0.36,1)}
+html.dark{--bg:#0A0A0A;--bg-elev:#1F2937;--text:#F8FAFC;--muted:#94A3B8;--border:#334155}
+html{scroll-behavior:smooth}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background .2s var(--ease),color .2s var(--ease)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:780px;margin:0 auto;padding:0 24px}
+.muted{color:var(--muted)}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:color-mix(in srgb, var(--bg) 80%, transparent);border-bottom:1px solid var(--border);transition:background .2s var(--ease)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1152px;margin:0 auto;padding:0 24px}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.logo .for{color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.btn-back{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .15s var(--ease)}
+.btn-back:hover{color:var(--text);text-decoration:none}
+.theme-toggle{background:transparent;border:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--muted);transition:background .15s var(--ease)}
+.theme-toggle:hover{background:var(--bg-elev)}
+
+.legal{padding:80px 0 120px}
+.legal h1{font-size:36px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px}
+.legal .updated{font-size:14px;color:var(--muted);margin:0 0 48px}
+.legal h2{font-size:22px;font-weight:700;letter-spacing:-.015em;margin:48px 0 12px}
+.legal h2:first-of-type{margin-top:0}
+.legal p,.legal li{font-size:16px;line-height:1.75;color:var(--muted)}
+.legal p{margin:0 0 16px}
+.legal ul{padding-left:24px;margin:0 0 16px}
+.legal li{margin-bottom:6px}
+.legal strong{color:var(--text);font-weight:600}
+
+footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
+.foot-bottom{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);max-width:1152px;margin:0 auto;padding:0 24px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="/">Ready <span class="for">for</span> Renting</a>
+    <div class="nav-right">
+      <a class="btn-back" href="/">← Back to home</a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="legal">
+    <h1>Terms of Service</h1>
+    <p class="updated">Last updated: 20 April 2026</p>
+
+    <h2>Agreement</h2>
+    <p>By purchasing or using any Ready for Renting product ("the Service"), you agree to these terms. If you do not agree, do not use the Service. These terms are governed by the laws of England and Wales.</p>
+
+    <h2>What we provide</h2>
+    <p>Ready for Renting provides digital compliance documents and a certificate-tracking tool designed for private landlords in England. Our products are:</p>
+    <ul>
+      <li><strong>Document Pack</strong> — a one-time purchase of downloadable PDF templates drafted for the Renters' Rights Act 2025.</li>
+      <li><strong>Certificate Tracker</strong> — a subscription service that stores property certificate dates and sends email reminders before expiry.</li>
+    </ul>
+
+    <h2>Not legal advice</h2>
+    <p>Nothing we provide constitutes legal advice. Our documents are information tools based on publicly available legislation and government guidance. They are not a substitute for professional legal counsel. You are responsible for verifying that any document you use is appropriate for your specific circumstances.</p>
+
+    <h2>Accuracy</h2>
+    <p>We take care to ensure our documents reflect current legislation, but laws change. We update templates when significant changes occur and notify active customers. We cannot guarantee that every document will remain compliant indefinitely. It is your responsibility to check documents against current guidance before use.</p>
+
+    <h2>Your account</h2>
+    <p>Tracker access is linked to the email address used at purchase. You are responsible for keeping your certificate data accurate and up to date. We are not liable for missed deadlines resulting from incorrect data entry.</p>
+
+    <h2>Payment</h2>
+    <p>All payments are processed securely by Stripe. Prices are in GBP and inclusive of VAT where applicable. Subscription billing occurs monthly or annually depending on your plan. You can cancel at any time — access continues until the end of your paid period.</p>
+
+    <h2>Intellectual property</h2>
+    <p>The templates in the Document Pack are licensed for your personal or business use across your own rental properties. You may not resell, redistribute, or commercially republish the templates. The Ready for Renting brand, website design, and original content remain our intellectual property.</p>
+
+    <h2>Limitation of liability</h2>
+    <p>To the fullest extent permitted by law, Ready for Renting shall not be liable for any indirect, incidental or consequential damages arising from your use of the Service, including but not limited to fines, penalties, or legal costs. Our total liability is limited to the amount you paid for the Service in the 12 months preceding the claim.</p>
+
+    <h2>Termination</h2>
+    <p>We may suspend or terminate access to the Service if you breach these terms. You may stop using the Service at any time by cancelling your subscription. Downloaded documents remain yours to keep.</p>
+
+    <h2>Changes</h2>
+    <p>We may update these terms from time to time. We will notify active subscribers of material changes by email. Continued use of the Service after changes take effect constitutes acceptance of the updated terms.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about these terms? Email <a href="mailto:help@readyforrenting.uk">help@readyforrenting.uk</a>.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-bottom">
+    <span>© 2026 Ready for Renting · Made in the UK</span>
+    <span>Compliant. Effortless. Done.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var key='rfr-theme';
+  function apply(t){
+    document.documentElement.classList.toggle('dark', t==='dark');
+    var icon=document.getElementById('theme-icon');
+    if(!icon) return;
+    icon.innerHTML = t==='dark'
+      ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+      : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+  }
+  var saved=localStorage.getItem(key);
+  apply(saved || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+  window.toggleTheme=function(){
+    var next=document.documentElement.classList.contains('dark')?'light':'dark';
+    localStorage.setItem(key,next);
+    apply(next);
+  };
+})();
+</script>
+</body>
+</html>
