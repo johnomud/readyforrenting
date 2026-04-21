@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Tracker | Ready for Renting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-light: #FFFFFF;
+            --bg-dark: #0A0A0A;
+            --text-light: #111111;
+            --text-dark: #F8FAFC;
+            --muted: #64748B;
+            --accent: #5B21B6;
+            --accent-hover: #4C1D95;
+            --success: #10B981;
+            --surface-light: #F8FAFC;
+            --surface-dark: #1F2937;
+            --border-light: #E2E8F0;
+            --border-dark: #334155;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .header {
+            background: var(--bg-dark);
+            border-bottom-color: var(--border-dark);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+
+        body.dark-mode .logo {
+            color: var(--text-dark);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .dark-toggle {
+            background: var(--surface-light);
+            border: 1px solid var(--border-light);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .dark-toggle {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+            color: var(--text-dark);
+        }
+
+        .dark-toggle:hover {
+            background: var(--border-light);
+        }
+
+        body.dark-mode .dark-toggle:hover {
+            background: var(--border-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .compliance-score {
+            background: var(--surface-light);
+            border: 1px solid var(--border-light);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .compliance-score {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .score-content {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .score-ring {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .score-ring canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .score-text {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .score-percentage {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 0.25rem;
+        }
+
+        .score-details {
+            flex: 1;
+        }
+
+        .score-detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .score-detail-item {
+            border-bottom-color: var(--border-dark);
+        }
+
+        .score-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-detail-label {
+            font-size: 0.9rem;
+        }
+
+        .score-detail-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .property-card {
+            background: var(--surface-light);
+            border: 1px solid var(--border-light);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        body.dark-mode .property-card {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .property-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.1);
+        }
+
+        body.dark-mode .property-card:hover {
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.2);
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .property-address {
+            flex: 1;
+        }
+
+        .property-address-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+
+        .property-address-subtitle {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .property-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .property-status.green {
+            background: var(--success);
+        }
+
+        .property-status.amber {
+            background: var(--warning);
+        }
+
+        .property-status.red {
+            background: var(--danger);
+        }
+
+        .certificates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .cert-item {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .cert-name {
+            font-weight: 500;
+        }
+
+        .cert-date {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .cert-status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .cert-status-badge.expired {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .cert-status-badge.expiring {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .cert-status-badge.ok {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--surface-light);
+            color: var(--text-light);
+            border: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .btn-secondary {
+            background: var(--surface-dark);
+            color: var(--text-dark);
+            border-color: var(--border-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-light);
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: var(--border-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #FFFFFF;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .add-property-section {
+            margin-bottom: 3rem;
+        }
+
+        .add-property-btn {
+            width: 100%;
+            padding: 2rem;
+            border: 2px dashed var(--border-light);
+            border-radius: 1rem;
+            background: var(--surface-light);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body.dark-mode .add-property-btn {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+        }
+
+        .add-property-btn:hover {
+            border-color: var(--accent);
+            background: rgba(91, 33, 182, 0.05);
+        }
+
+        body.dark-mode .add-property-btn:hover {
+            background: rgba(91, 33, 182, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-light);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        body.dark-mode .modal-content {
+            background: var(--bg-dark);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        body.dark-mode .modal-close {
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            background: var(--bg-light);
+            color: var(--text-light);
+            transition: border 0.3s;
+        }
+
+        body.dark-mode .form-input,
+        body.dark-mode .form-select,
+        body.dark-mode .form-textarea {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+            color: var(--text-dark);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+        }
+
+        .cert-group {
+            background: var(--surface-light);
+            border: 1px solid var(--border-light);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        body.dark-mode .cert-group {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: var(--border-dark);
+        }
+
+        .cert-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .cert-group-title {
+            font-weight: 600;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .upcoming-section {
+            margin-bottom: 3rem;
+        }
+
+        .upcoming-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .upcoming-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .upcoming-item {
+            background: var(--surface-light);
+            border-left: 4px solid var(--border-light);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .upcoming-item {
+            background: var(--surface-dark);
+        }
+
+        .upcoming-item.expired {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        body.dark-mode .upcoming-item.expired {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .upcoming-item.expiring {
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        body.dark-mode .upcoming-item.expiring {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .upcoming-item.ok {
+            border-left-color: var(--success);
+        }
+
+        .upcoming-info {
+            flex: 1;
+        }
+
+        .upcoming-property {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .upcoming-detail {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .upcoming-urgency {
+            text-align: right;
+        }
+
+        .upcoming-days {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .upcoming-status {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .upcoming-days.expired {
+            color: var(--danger);
+        }
+
+        .upcoming-days.expiring {
+            color: var(--warning);
+        }
+
+        .upcoming-status.expired {
+            color: var(--danger);
+        }
+
+        .upcoming-status.expiring {
+            color: var(--warning);
+        }
+
+        .upcoming-status.ok {
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        body.dark-mode .empty-state-title {
+            color: var(--text-dark);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            color: var(--muted);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        body.dark-mode .spinner {
+            border-color: var(--border-dark);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--danger);
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--success);
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .score-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .property-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .property-status {
+                align-self: flex-start;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="#" class="logo">Ready <span>for</span> Renting</a>
+            <div class="header-right">
+                <button class="dark-toggle" id="darkToggle">🌙</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="errorContainer"></div>
+        <div id="successContainer"></div>
+
+        <div class="page-title">Certificate Tracker</div>
+        <div class="page-subtitle">Monitor compliance across your rental properties</div>
+
+        <div id="loadingState" class="loading" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="contentState" style="display: none;">
+            <div class="compliance-score">
+                <div class="score-content">
+                    <div class="score-ring">
+                        <canvas id="scoreCanvas" width="150" height="150"></canvas>
+                        <div class="score-text">
+                            <div class="score-percentage" id="scorePercentage">—</div>
+                            <div class="score-label">Overall</div>
+                        </div>
+                    </div>
+                    <div class="score-details">
+                        <div class="score-detail-item">
+                            <span class="score-detail-label">Properties</span>
+                            <span class="score-detail-value" id="scoreProperties">0</span>
+                        </div>
+                        <div class="score-detail-item">
+                            <span class="score-detail-label">Compliant</span>
+                            <span class="score-detail-value" id="scoreCompliant">0</span>
+                        </div>
+                        <div class="score-detail-item">
+                            <span class="score-detail-label">Requiring Action</span>
+                            <span class="score-detail-value" id="scoreAction">0</span>
+                        </div>
+                        <div class="score-detail-item">
+                            <span class="score-detail-label">Overdue</span>
+                            <span class="score-detail-value" id="scoreOverdue">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="add-property-section">
+                <button class="add-property-btn" id="addPropertyBtn">+ Add Property</button>
+            </div>
+
+            <div id="propertiesContainer">
+                <div class="dashboard" id="dashboard"></div>
+            </div>
+
+            <div id="upcomingContainer" class="upcoming-section" style="display: none;">
+                <div class="upcoming-title">Upcoming Renewals</div>
+                <div class="upcoming-list" id="upcomingList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Property Modal -->
+    <div id="propertyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="propertyModalTitle">Add Property</span>
+                <button class="modal-close" id="propertyModalClose">&times;</button>
+            </div>
+            <form id="propertyForm">
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-input" id="propertyAddress" placeholder="123 Main Street" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Postcode</label>
+                    <input type="text" class="form-input" id="propertyPostcode" placeholder="SW1A 1AA" required>
+                </div>
+
+                <div id="certificateFields"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary full-width" id="propertyModalCancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary full-width" id="propertyModalSubmit">Save Property</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Certificates Modal -->
+    <div id="certificatesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Update Certificates</span>
+                <button class="modal-close" id="certificatesModalClose">&times;</button>
+            </div>
+            <form id="certificatesForm">
+                <div id="certificateEditFields"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary full-width" id="certificatesModalCancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary full-width">Save Certificates</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const CERT_TYPES = [
+            { name: 'Gas Safety', description: 'Annual - £6,000 fine if overdue' },
+            { name: 'EICR', description: '5-yearly - £30,000 fine if overdue' },
+            { name: 'EPC', description: '10-yearly - £5,000 fine if overdue' },
+            { name: 'HMO Licence', description: '5-yearly if applicable' },
+            { name: 'Smoke & CO Alarms', description: 'Each tenancy' }
+        ];
+
+        let properties = [];
+        let currentEditingProperty = null;
+        let sessionId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initSessionId();
+            setupEventListeners();
+            loadData();
+            loadDarkMode();
+        });
+
+        function initSessionId() {
+            const params = new URLSearchParams(window.location.search);
+            const urlSessionId = params.get('session_id');
+
+            if (urlSessionId) {
+                sessionId = urlSessionId;
+                localStorage.setItem('tracker_session_id', sessionId);
+            } else {
+                sessionId = localStorage.getItem('tracker_session_id');
+            }
+
+            if (!sessionId) {
+                showError('No valid session. Please log in again.');
+                document.getElementById('contentState').style.display = 'none';
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('darkToggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('addPropertyBtn').addEventListener('click', openAddPropertyModal);
+            document.getElementById('propertyForm').addEventListener('submit', handleAddProperty);
+            document.getElementById('certificatesForm').addEventListener('submit', handleUpdateCertificates);
+            document.getElementById('propertyModalClose').addEventListener('click', closePropertyModal);
+            document.getElementById('propertyModalCancel').addEventListener('click', closePropertyModal);
+            document.getElementById('certificatesModalClose').addEventListener('click', closeCertificatesModal);
+            document.getElementById('certificatesModalCancel').addEventListener('click', closeCertificatesModal);
+        }
+
+        async function loadData() {
+            if (!sessionId) return;
+
+            showLoading(true);
+            try {
+                const response = await fetch(`/api/tracker?session_id=${sessionId}`);
+                if (!response.ok) throw new Error('Failed to load data');
+
+                const data = await response.json();
+                properties = data.properties || [];
+                render();
+                showLoading(false);
+                document.getElementById('contentState').style.display = 'block';
+            } catch (err) {
+                showError(`Failed to load properties: ${err.message}`);
+                showLoading(false);
+            }
+        }
+
+        function render() {
+            renderComplianceScore();
+            renderDashboard();
+            renderUpcomingRenewals();
+        }
+
+        function renderComplianceScore() {
+            if (properties.length === 0) {
+                document.querySelector('.compliance-score').style.display = 'none';
+                return;
+            }
+            document.querySelector('.compliance-score').style.display = 'block';
+
+            const totalCerts = properties.reduce((sum, p) => sum + (p.certificates?.length || 0), 0);
+            const compliantCerts = properties.reduce((sum, p) => {
+                return sum + (p.certificates?.filter(c => getStatus(c.expiryDate) === 'ok').length || 0);
+            }, 0);
+
+            const percentage = totalCerts > 0 ? Math.round((compliantCerts / totalCerts) * 100) : 0;
+
+            document.getElementById('scorePercentage').textContent = `${percentage}%`;
+            document.getElementById('scoreProperties').textContent = properties.length;
+
+            const compliantCount = properties.filter(p => getPropertyStatus(p) === 'green').length;
+            const actionCount = properties.filter(p => getPropertyStatus(p) === 'amber').length;
+            const overdueCount = properties.filter(p => getPropertyStatus(p) === 'red').length;
+
+            document.getElementById('scoreCompliant').textContent = compliantCount;
+            document.getElementById('scoreAction').textContent = actionCount;
+            document.getElementById('scoreOverdue').textContent = overdueCount;
+
+            drawScoreRing(percentage);
+        }
+
+        function drawScoreRing(percentage) {
+            const canvas = document.getElementById('scoreCanvas');
+            const ctx = canvas.getContext('2d');
+            const radius = 65;
+            const centerX = 75;
+            const centerY = 75;
+
+            ctx.clearRect(0, 0, 150, 150);
+
+            // Background ring
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Progress ring
+            const hue = (percentage / 100) * 120;
+            const color = percentage < 50 ? '#EF4444' : percentage < 75 ? '#F59E0B' : '#10B981';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI / 2, (Math.PI * 2 * percentage / 100) - Math.PI / 2);
+            ctx.stroke();
+        }
+
+        function renderDashboard() {
+            const dashboard = document.getElementById('dashboard');
+
+            if (properties.length === 0) {
+                dashboard.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-title">No properties yet</div>
+                        <div>Add your first property to get started tracking compliance</div>
+                    </div>
+                `;
+                return;
+            }
+
+            dashboard.innerHTML = properties.map(prop => `
+                <div class="property-card" onclick="openEditCertificatesModal('${prop.propertyId}')">
+                    <div class="property-header">
+                        <div class="property-address">
+                            <div class="property-address-title">${escapeHtml(prop.address)}</div>
+                            <div class="property-address-subtitle">${escapeHtml(prop.postcode)}</div>
+                        </div>
+                        <div class="property-status ${getPropertyStatus(prop)}"></div>
+                    </div>
+
+                    <div class="certificates-list">
+                        ${(prop.certificates || []).map(cert => `
+                            <div class="cert-item">
+                                <span class="cert-name">${cert.type}</span>
+                                <div>
+                                    <span class="cert-date">${formatDate(cert.expiryDate)}</span>
+                                    <span class="cert-status-badge ${getStatus(cert.expiryDate)}">
+                                        ${getDaysUntil(cert.expiryDate)}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="property-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="openEditPropertyModal('${prop.propertyId}'); event.stopPropagation();">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProperty('${prop.propertyId}'); event.stopPropagation();">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderUpcomingRenewals() {
+            const upcoming = [];
+
+            properties.forEach(prop => {
+                (prop.certificates || []).forEach(cert => {
+                    upcoming.push({
+                        propertyId: prop.propertyId,
+                        address: prop.address,
+                        postcode: prop.postcode,
+                        type: cert.type,
+                        expiryDate: cert.expiryDate,
+                        status: getStatus(cert.expiryDate),
+                        daysUntil: getDaysUntilNumber(cert.expiryDate)
+                    });
+                });
+            });
+
+            // Sort by urgency
+            upcoming.sort((a, b) => a.daysUntil - b.daysUntil);
+
+            const container = document.getElementById('upcomingContainer');
+            const list = document.getElementById('upcomingList');
+
+            if (upcoming.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+
+            list.innerHTML = upcoming.slice(0, 10).map(item => {
+                const daysText = item.daysUntil < 0
+                    ? `${Math.abs(item.daysUntil)} days overdue`
+                    : item.daysUntil === 0
+                    ? 'Due today'
+                    : `${item.daysUntil} days left`;
+
+                return `
+                    <div class="upcoming-item ${item.status}">
+                        <div class="upcoming-info">
+                            <div class="upcoming-property">${escapeHtml(item.address)}</div>
+                            <div class="upcoming-detail">${item.type} - ${formatDate(item.expiryDate)}</div>
+                        </div>
+                        <div class="upcoming-urgency">
+                            <div class="upcoming-days ${item.status}">${daysText}</div>
+                            <div class="upcoming-status ${item.status}">
+                                ${item.status === 'expired' ? 'Overdue' : item.status === 'expiring' ? 'Urgent' : 'OK'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAddPropertyModal() {
+            currentEditingProperty = null;
+            document.getElementById('propertyModalTitle').textContent = 'Add Property';
+            document.getElementById('propertyAddress').value = '';
+            document.getElementById('propertyPostcode').value = '';
+            renderCertificateFields();
+            document.getElementById('propertyModal').classList.add('active');
+        }
+
+        function openEditPropertyModal(propertyId) {
+            const prop = properties.find(p => p.propertyId === propertyId);
+            if (!prop) return;
+
+            currentEditingProperty = prop;
+            document.getElementById('propertyModalTitle').textContent = 'Edit Property';
+            document.getElementById('propertyAddress').value = prop.address;
+            document.getElementById('propertyPostcode').value = prop.postcode;
+            renderCertificateFields();
+            document.getElementById('propertyModal').classList.add('active');
+        }
+
+        function renderCertificateFields() {
+            const container = document.getElementById('certificateFields');
+            container.innerHTML = CERT_TYPES.map(cert => `
+                <div class="form-group">
+                    <label class="form-label">${cert.name}</label>
+                    <small style="display: block; color: var(--muted); margin-bottom: 0.5rem;">${cert.description}</small>
+                    <input type="date" class="form-input" data-cert-type="${cert.name}">
+                </div>
+            `).join('');
+        }
+
+        function closePropertyModal() {
+            document.getElementById('propertyModal').classList.remove('active');
+        }
+
+        async function handleAddProperty(e) {
+            e.preventDefault();
+
+            const address = document.getElementById('propertyAddress').value;
+            const postcode = document.getElementById('propertyPostcode').value;
+
+            const certs = [];
+            CERT_TYPES.forEach(cert => {
+                const input = document.querySelector(`input[data-cert-type="${cert.name}"]`);
+                if (input.value) {
+                    certs.push({
+                        type: cert.name,
+                        expiry: input.value
+                    });
+                }
+            });
+
+            try {
+                const method = currentEditingProperty ? 'PUT' : 'POST';
+                const url = currentEditingProperty
+                    ? `/api/tracker?session_id=${sessionId}&property_id=${currentEditingProperty.propertyId}`
+                    : `/api/tracker?session_id=${sessionId}`;
+
+                const body = currentEditingProperty
+                    ? { address, postcode, certs }
+                    : { address, postcode, certs };
+
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) throw new Error('Failed to save property');
+
+                closePropertyModal();
+                showSuccess(currentEditingProperty ? 'Property updated' : 'Property added');
+                await loadData();
+            } catch (err) {
+                showError(`Error: ${err.message}`);
+            }
+        }
+
+        function openEditCertificatesModal(propertyId) {
+            const prop = properties.find(p => p.propertyId === propertyId);
+            if (!prop) return;
+
+            currentEditingProperty = prop;
+            const container = document.getElementById('certificateEditFields');
+
+            container.innerHTML = CERT_TYPES.map(cert => {
+                const existing = prop.certificates?.find(c => c.type === cert.name);
+                return `
+                    <div class="cert-group">
+                        <div class="cert-group-header">
+                            <div class="cert-group-title">${cert.name}</div>
+                            <small style="color: var(--muted);">${cert.description}</small>
+                        </div>
+                        <input type="date" class="form-input" data-cert-type="${cert.name}" value="${existing?.expiryDate || ''}">
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('certificatesModal').classList.add('active');
+        }
+
+        function closeCertificatesModal() {
+            document.getElementById('certificatesModal').classList.remove('active');
+        }
+
+        async function handleUpdateCertificates(e) {
+            e.preventDefault();
+
+            const certs = [];
+            CERT_TYPES.forEach(cert => {
+                const input = document.querySelector(`input[data-cert-type="${cert.name}"]`);
+                if (input.value) {
+                    certs.push({
+                        type: cert.name,
+                        expiry: input.value
+                    });
+                }
+            });
+
+            try {
+                const response = await fetch(
+                    `/api/tracker?session_id=${sessionId}&property_id=${currentEditingProperty.propertyId}`,
+                    {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ certs })
+                    }
+                );
+
+                if (!response.ok) throw new Error('Failed to update certificates');
+
+                closeCertificatesModal();
+                showSuccess('Certificates updated');
+                await loadData();
+            } catch (err) {
+                showError(`Error: ${err.message}`);
+            }
+        }
+
+        async function deleteProperty(propertyId) {
+            if (!confirm('Are you sure you want to delete this property and all its certificates?')) return;
+
+            try {
+                const response = await fetch(
+                    `/api/tracker?session_id=${sessionId}&property_id=${propertyId}`,
+                    { method: 'DELETE' }
+                );
+
+                if (!response.ok) throw new Error('Failed to delete property');
+
+                showSuccess('Property deleted');
+                await loadData();
+            } catch (err) {
+                showError(`Error: ${err.message}`);
+            }
+        }
+
+        function getPropertyStatus(prop) {
+            const certs = prop.certificates || [];
+            if (certs.some(c => getStatus(c.expiryDate) === 'expired')) return 'red';
+            if (certs.some(c => getStatus(c.expiryDate) === 'expiring')) return 'amber';
+            return 'green';
+        }
+
+        function getStatus(expiryDate) {
+            const days = getDaysUntilNumber(expiryDate);
+            if (days <= 0) return 'expired';
+            if (days <= 7) return 'expired';
+            if (days <= 30) return 'expiring';
+            return 'ok';
+        }
+
+        function getDaysUntil(expiryDate) {
+            const days = getDaysUntilNumber(expiryDate);
+            if (days < 0) return 'OVERDUE';
+            if (days === 0) return 'TODAY';
+            if (days <= 7) return `${days}d`;
+            if (days <= 30) return `${days}d`;
+            return `${days}d`;
+        }
+
+        function getDaysUntilNumber(expiryDate) {
+            const expiry = new Date(expiryDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diff = expiry - today;
+            return Math.ceil(diff / (1000 * 60 * 60 * 24));
+        }
+
+        function formatDate(date) {
+            if (!date) return '—';
+            const d = new Date(date);
+            return d.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('errorContainer');
+            container.innerHTML = `<div class="error-message">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('successContainer');
+            container.innerHTML = `<div class="success-message">${escapeHtml(message)}</div>`;
+            setTimeout(() => container.innerHTML = '', 3000);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('tracker_dark_mode', isDark ? 'true' : 'false');
+            document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        function loadDarkMode() {
+            const isDark = localStorage.getItem('tracker_dark_mode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkToggle').textContent = '☀️';
+            }
+        }
+    </script>
+</body>
+</html>
