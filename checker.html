@@ -110,6 +110,12 @@ label.field input:focus,label.field select:focus{outline:none;border-color:var(-
 .positive-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:8px;font-size:15px;color:var(--text);display:flex;gap:10px;align-items:flex-start}
 .positive-card .tick{color:var(--success);font-weight:700;flex-shrink:0}
 
+/* Key deadlines section */
+.deadlines-section{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:32px}
+.deadlines-section h4{font-size:14px;font-weight:700;margin:0 0 12px;color:var(--text)}
+.deadline-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px}
+.deadline-item .deadline-date{color:var(--danger);font-weight:600}
+
 /* Gated/blurred content */
 .gated{position:relative;overflow:hidden}
 .gated .blur-overlay{filter:blur(6px);pointer-events:none;user-select:none;opacity:.5}
@@ -144,7 +150,7 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
 <div class="container">
   <div class="checker">
     <h1>Free Compliance Checker</h1>
-    <p class="subtitle">Answer 10 questions about your portfolio. Get an instant compliance score and personalised action plan — free, no sign-up required.</p>
+    <p class="subtitle">Answer 10 quick questions about your portfolio. Get an instant compliance score and personalised action plan — free, no sign-up required.</p>
 
     <!-- Progress bar -->
     <div class="progress-bar" id="progress">
@@ -176,7 +182,7 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
     <!-- STEP 2: Portfolio -->
     <div class="step" data-step="2">
       <p class="step-title">Your portfolio</p>
-      <p class="step-desc">How many properties do you let, and what tenancy types do you use?</p>
+      <p class="step-desc">How many properties do you let, and what types of tenancies do you use?</p>
       <label class="field"><span class="label-text">Number of rental properties</span></label>
       <div class="option-grid cols-4" data-field="propertyCount" data-mode="single">
         <div class="opt-card" data-value="1">1</div>
@@ -184,12 +190,12 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
         <div class="opt-card" data-value="5-9">5–9</div>
         <div class="opt-card" data-value="10+">10+</div>
       </div>
-      <label class="field"><span class="label-text">Tenancy types (select all that apply)</span></label>
+      <label class="field"><span class="label-text">What type of tenancies do you have?</span></label>
       <div class="option-grid" data-field="propertyTypes" data-mode="multi">
-        <div class="opt-card multi" data-value="AST"><span class="check-box"></span>Assured Shorthold</div>
-        <div class="opt-card multi" data-value="Periodic"><span class="check-box"></span>Periodic</div>
-        <div class="opt-card multi" data-value="Company let"><span class="check-box"></span>Company let</div>
-        <div class="opt-card multi" data-value="HMO"><span class="check-box"></span>HMO</div>
+        <div class="opt-card multi" data-value="AST"><span class="check-box"></span>Standard residential (most common)</div>
+        <div class="opt-card multi" data-value="Periodic"><span class="check-box"></span>Rolling month-to-month</div>
+        <div class="opt-card multi" data-value="Company let"><span class="check-box"></span>Rented to a company</div>
+        <div class="opt-card multi" data-value="HMO"><span class="check-box"></span>House shared by multiple tenants (HMO)</div>
       </div>
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
@@ -201,19 +207,19 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
     <div class="step" data-step="3">
       <p class="step-title">Tenancy setup</p>
       <p class="step-desc">Tell us about your current tenancy arrangements.</p>
-      <label class="field"><span class="label-text">Do any tenancies have a fixed-term AST in place?</span></label>
+      <label class="field"><span class="label-text">Do any of your tenancies have a set end date (e.g. a 12-month contract), or do they all roll month to month?</span></label>
       <div class="option-grid" data-field="hasAST" data-mode="single">
-        <div class="opt-card" data-value="Yes all">Yes, all of them</div>
-        <div class="opt-card" data-value="Yes some">Yes, some</div>
-        <div class="opt-card" data-value="No">No, all periodic</div>
-        <div class="opt-card" data-value="Unsure">Unsure</div>
+        <div class="opt-card" data-value="Yes all">Yes, all have end dates</div>
+        <div class="opt-card" data-value="Yes some">Some do, some don't</div>
+        <div class="opt-card" data-value="No">No, they all roll monthly</div>
+        <div class="opt-card" data-value="Unsure">Not sure</div>
       </div>
-      <label class="field"><span class="label-text">How do you currently increase rent?</span></label>
+      <label class="field"><span class="label-text">When you put the rent up, how do you do it?</span></label>
       <div class="option-grid" data-field="rentIncrease" data-mode="single">
-        <div class="opt-card" data-value="Informal agreement">Informal agreement</div>
-        <div class="opt-card" data-value="Rent review clause">Rent review clause</div>
-        <div class="opt-card" data-value="Section 13 notice">Section 13 notice</div>
-        <div class="opt-card" data-value="Haven't increased">Haven't increased</div>
+        <div class="opt-card" data-value="Informal agreement">We just agree it informally</div>
+        <div class="opt-card" data-value="Rent review clause">There's a clause in the contract</div>
+        <div class="opt-card" data-value="Section 13 notice">I send a formal notice</div>
+        <div class="opt-card" data-value="Haven't increased">I haven't raised the rent</div>
       </div>
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
@@ -221,23 +227,23 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
       </div>
     </div>
 
-    <!-- STEP 4: Rent & Section 21 -->
+    <!-- STEP 4: Rent & possession -->
     <div class="step" data-step="4">
-      <p class="step-title">Rent & possession</p>
-      <p class="step-desc">A couple more questions about rent collection and possession notices.</p>
-      <label class="field"><span class="label-text">Do you take more than 1 month's rent in advance?</span></label>
+      <p class="step-title">Rent and possession</p>
+      <p class="step-desc">A couple more questions about rent collection and asking tenants to leave.</p>
+      <label class="field"><span class="label-text">When a new tenant moves in, how much rent do you collect upfront?</span></label>
       <div class="option-grid" data-field="rentAdvance" data-mode="single">
-        <div class="opt-card" data-value="Yes 2+ months">Yes, 2+ months</div>
-        <div class="opt-card" data-value="Sometimes">Sometimes</div>
-        <div class="opt-card" data-value="No 1 month">No, 1 month only</div>
-        <div class="opt-card" data-value="None">No advance rent</div>
+        <div class="opt-card" data-value="Yes 2+ months">2 or more months</div>
+        <div class="opt-card" data-value="Sometimes">Sometimes more than 1 month</div>
+        <div class="opt-card" data-value="No 1 month">Just 1 month</div>
+        <div class="opt-card" data-value="None">No upfront rent</div>
       </div>
-      <label class="field"><span class="label-text">Have you served a Section 21 notice in the last 12 months?</span></label>
+      <label class="field"><span class="label-text">Have you asked a tenant to leave without giving a specific reason in the last year?</span></label>
       <div class="option-grid" data-field="s21" data-mode="single">
-        <div class="opt-card" data-value="Yes currently active">Yes, currently active</div>
-        <div class="opt-card" data-value="Yes completed">Yes, completed</div>
+        <div class="opt-card" data-value="Yes currently active">Yes, and it's still ongoing</div>
+        <div class="opt-card" data-value="Yes completed">Yes, it's done now</div>
         <div class="opt-card" data-value="No">No</div>
-        <div class="opt-card" data-value="Planning to">Planning to</div>
+        <div class="opt-card" data-value="Planning to">I'm thinking about it</div>
       </div>
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
@@ -250,14 +256,14 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
       <p class="step-title">Compliance checklist</p>
       <p class="step-desc">Tick everything you currently have in place. Be honest — this is how we spot the gaps.</p>
       <div class="option-grid" style="grid-template-columns:1fr" data-field="checks" data-mode="multi">
-        <div class="opt-card multi" data-value="Written tenancy agreement for all properties"><span class="check-box"></span>Written tenancy agreement for all properties</div>
-        <div class="opt-card multi" data-value="Valid Gas Safety Certificate"><span class="check-box"></span>Valid Gas Safety Certificate</div>
-        <div class="opt-card multi" data-value="Valid EPC rated E or above"><span class="check-box"></span>Valid EPC rated E or above</div>
-        <div class="opt-card multi" data-value="Smoke alarms on every floor"><span class="check-box"></span>Smoke alarms on every floor</div>
-        <div class="opt-card multi" data-value="Carbon monoxide detectors where required"><span class="check-box"></span>Carbon monoxide detectors where required</div>
-        <div class="opt-card multi" data-value="Deposit protected within 30 days"><span class="check-box"></span>Deposit protected within 30 days</div>
-        <div class="opt-card multi" data-value="How to Rent guide provided"><span class="check-box"></span>How to Rent guide provided</div>
-        <div class="opt-card multi" data-value="EICR within last 5 years"><span class="check-box"></span>EICR within last 5 years</div>
+        <div class="opt-card multi" data-value="Written tenancy agreement for all properties"><span class="check-box"></span>I have a written tenancy agreement for every property</div>
+        <div class="opt-card multi" data-value="Valid Gas Safety Certificate"><span class="check-box"></span>All my properties have a valid Gas Safety Certificate (checked annually)</div>
+        <div class="opt-card multi" data-value="Valid EPC rated E or above"><span class="check-box"></span>All my properties have an up-to-date Energy Performance Certificate</div>
+        <div class="opt-card multi" data-value="Smoke alarms on every floor"><span class="check-box"></span>Every property has working smoke alarms on each floor</div>
+        <div class="opt-card multi" data-value="Carbon monoxide detectors where required"><span class="check-box"></span>I have carbon monoxide detectors where there are gas appliances</div>
+        <div class="opt-card multi" data-value="Deposit protected within 30 days"><span class="check-box"></span>All tenant deposits are protected in a government scheme</div>
+        <div class="opt-card multi" data-value="How to Rent guide provided"><span class="check-box"></span>I've given every tenant the 'How to Rent' guide at the start of their tenancy</div>
+        <div class="opt-card multi" data-value="EICR within last 5 years"><span class="check-box"></span>All my properties have had an electrical safety check in the last 5 years</div>
       </div>
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="prevStep()">← Back</button>
@@ -295,10 +301,16 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
         <p class="results-summary" id="summary-text"></p>
       </div>
 
-      <!-- Urgent actions (free: show first 3) -->
+      <!-- Urgent actions (free: show all) -->
       <div class="result-section" id="urgent-section">
         <h3><span class="icon">🚨</span> Urgent actions</h3>
         <div id="urgent-free"></div>
+      </div>
+
+      <!-- Key deadlines (free) -->
+      <div id="deadlines-section" class="deadlines-section" style="display:none">
+        <h4>Key deadlines</h4>
+        <div id="deadlines-list"></div>
       </div>
 
       <!-- Positive notes (free: show all) -->
@@ -307,7 +319,7 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
         <div id="positive-list"></div>
       </div>
 
-      <!-- GATED: remaining urgent + required actions -->
+      <!-- GATED: Full action plan -->
       <div class="gated" id="gated-section">
         <div class="blur-overlay" id="gated-blur">
           <div class="result-section">
@@ -316,8 +328,8 @@ footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px}
           </div>
         </div>
         <div class="gate-cta">
-          <h3>Unlock your full compliance report</h3>
-          <p>Your complete action plan has <span id="gated-count">0</span> more recommendations — including deadlines, fine amounts, and step-by-step fixes. Get them all instantly with the Document Pack.</p>
+          <h3>Unlock your full action plan</h3>
+          <p>Your complete step-by-step plan has <span id="gated-count">0</span> more actions — including exact deadlines, templates, and how-to guides for each. Get instant access with the Document Pack.</p>
           <a class="btn btn-primary" href="https://buy.stripe.com/6oUeVd24p1FX1k3eWz2Ji03">Get the Document Pack — £29 →</a>
         </div>
       </div>
@@ -483,16 +495,34 @@ function renderResults(r){
   // Summary
   document.getElementById('summary-text').textContent = r.summary || '';
 
-  // Urgent actions — show first 3 free
+  // Urgent actions — show ALL (free)
   var urgentFree = document.getElementById('urgent-free');
   var urgents = r.urgent_actions || [];
-  var freeCount = Math.min(3, urgents.length);
   urgentFree.innerHTML = '';
-  for(var i = 0; i < freeCount; i++){
-    urgentFree.innerHTML += actionCardHTML(urgents[i], true);
-  }
+  urgents.forEach(function(u){
+    urgentFree.innerHTML += actionCardHTML(u, true);
+  });
   if(urgents.length === 0){
     document.getElementById('urgent-section').style.display = 'none';
+  }
+
+  // Key deadlines section (free) — extract from urgents that have deadlines
+  var deadlinesSection = document.getElementById('deadlines-section');
+  var deadlinesList = document.getElementById('deadlines-list');
+  var deadlineItems = [];
+  urgents.forEach(function(u){
+    if(u.deadline){
+      deadlineItems.push({title: u.action, deadline: u.deadline});
+    }
+  });
+  if(deadlineItems.length > 0){
+    deadlinesList.innerHTML = '';
+    deadlineItems.forEach(function(d){
+      deadlinesList.innerHTML += '<div class="deadline-item"><span>'+escHtml(d.title)+'</span><span class="deadline-date">'+escHtml(d.deadline)+'</span></div>';
+    });
+    deadlinesSection.style.display = 'block';
+  } else {
+    deadlinesSection.style.display = 'none';
   }
 
   // Positive notes
@@ -506,18 +536,16 @@ function renderResults(r){
     document.getElementById('positive-section').style.display = 'none';
   }
 
-  // Gated content — remaining urgents + all required actions
+  // Gated content — all required actions only (no urgents repeated)
   var gatedActions = document.getElementById('gated-actions');
   var required = r.required_actions || [];
-  var remainingUrgents = urgents.slice(freeCount);
-  var gatedItems = remainingUrgents.length + required.length;
+  var gatedCount = required.length;
 
-  if(gatedItems === 0){
+  if(gatedCount === 0){
     document.getElementById('gated-section').style.display = 'none';
   } else {
-    document.getElementById('gated-count').textContent = gatedItems;
+    document.getElementById('gated-count').textContent = gatedCount;
     var gatedHTML = '';
-    remainingUrgents.forEach(function(a){ gatedHTML += actionCardHTML(a, true); });
     required.forEach(function(a){ gatedHTML += actionCardHTML(a, false); });
     gatedActions.innerHTML = gatedHTML;
   }

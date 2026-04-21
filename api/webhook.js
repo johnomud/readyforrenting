@@ -61,7 +61,16 @@ function sendEmail(apiKey, to, subject, html) {
     var req = https.request(opts, function(res) {
       var chunks = [];
       res.on('data', function(c) { chunks.push(c); });
-      res.on('end', function() { resolve(JSON.parse(Buffer.concat(chunks).toString())); });
+      res.on('end', function() {
+        var result = JSON.parse(Buffer.concat(chunks).toString());
+        if (res.statusCode >= 400) {
+          console.error('[Resend] API error ' + res.statusCode + ':', JSON.stringify(result));
+          reject(new Error('Resend error: ' + (result.message || res.statusCode)));
+        } else {
+          console.log('[Resend] Email sent successfully, id:', result.id);
+          resolve(result);
+        }
+      });
     });
     req.on('error', reject);
     req.write(body);
@@ -102,7 +111,8 @@ async function logPurchaseToNotion(notionKey, data) {
   };
 
   var body = JSON.stringify({ parent: { database_id: NOTION_DB_ORDERS }, properties: props });
-  await new Promise(function(resolve) {
+
+  var result = await new Promise(function(resolve) {
     var opts = {
       hostname: 'api.notion.com', port: 443, path: '/v1/pages', method: 'POST',
       headers: {
@@ -113,13 +123,29 @@ async function logPurchaseToNotion(notionKey, data) {
       }
     };
     var req = https.request(opts, function(res) {
-      res.on('data', function() {});
-      res.on('end', resolve);
+      var chunks = [];
+      res.on('data', function(c) { chunks.push(c); });
+      res.on('end', function() {
+        var text = Buffer.concat(chunks).toString();
+        try {
+          var json = JSON.parse(text);
+          if (res.statusCode >= 400) {
+            console.error('[Notion] Order log error ' + res.statusCode + ':', text.substring(0, 300));
+          } else {
+            console.log('[Notion] Order logged for:', data.email);
+          }
+          resolve(json);
+        } catch(e) {
+          console.error('[Notion] Parse error:', text.substring(0, 200));
+          resolve(null);
+        }
+      });
     });
-    req.on('error', function(e) { console.error('[Notion] Order log error:', e.message); resolve(); });
+    req.on('error', function(e) { console.error('[Notion] Network error:', e.message); resolve(null); });
     req.write(body);
     req.end();
   });
+  return result;
 }
 
 function packDownloadEmail(name, siteUrl, sessionId) {
@@ -134,15 +160,15 @@ function packDownloadEmail(name, siteUrl, sessionId) {
 <tr><td style="padding:40px;">
   <h1 style="margin:0 0 8px;font-size:24px;color:#111111;">Your document pack is ready, ${name || 'there'}.</h1>
   <p style="margin:0 0 24px;color:#6b7280;font-size:15px;line-height:1.6;">
-    Thank you for your purchase. Your Ready for Renting Renters&#8217; Rights Act 2025 Document Pack is ready to download.
+    Thank you for your purchase. Your Ready for Renting Document Pack is ready to download.
   </p>
   <div style="background:#F8FAFC;border-radius:8px;padding:20px;margin-bottom:24px;">
     <p style="margin:0 0 8px;font-weight:700;color:#111111;font-size:14px;">Your pack includes:</p>
     <ul style="margin:0;padding-left:20px;color:#374151;font-size:14px;line-height:1.8;">
-      <li>Assured Periodic Tenancy Agreement (post-May 2026)</li>
+      <li>Assured Periodic Tenancy Agreement (for post-May 2026 tenancies)</li>
       <li>Section 8 Possession Notice templates (all key grounds)</li>
-      <li>Government Information Sheet (due to all tenants by 31 May 2026)</li>
-      <li>Section 13 Rent Increase Notice (Form 4A format)</li>
+      <li>Government Information Sheet (must be sent to all tenants by 31 May 2026)</li>
+      <li>Section 13 Rent Increase Notice</li>
       <li>Compliance Action Checklist (printable)</li>
     </ul>
   </div>
@@ -150,12 +176,12 @@ function packDownloadEmail(name, siteUrl, sessionId) {
     Download Document Pack &rarr;
   </a>
   <p style="margin:0 0 24px;color:#6b7280;font-size:13px;">
-    This link is valid for 48 hours. If it expires, reply to this email and we&#8217;ll send a fresh link.
+    This link is valid for 48 hours. If it expires, just email help@readyforrenting.uk and we&#8217;ll send a fresh one.
   </p>
   <div style="border-left:3px solid #5B21B6;padding:12px 16px;background:#f5e9cc;border-radius:0 8px 8px 0;margin-bottom:24px;">
     <p style="margin:0;font-size:13px;color:#5c3a00;line-height:1.6;">
-      <strong>Reminder:</strong> The Government Information Sheet (Document 3) must be sent to all existing tenants by <strong>31 May 2026</strong>.
-      Civil penalty up to &#163;7,000 per tenancy for non-compliance.
+      <strong>Important deadline:</strong> The Government Information Sheet must be sent to all existing tenants by <strong>31 May 2026</strong>.
+      Civil penalty up to &#163;7,000 per tenancy if you miss it.
     </p>
   </div>
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
@@ -180,33 +206,74 @@ function trackerWelcomeEmail(name, siteUrl, sessionId) {
   <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;">Ready <span style="color:#5B21B6;">for</span> Renting</p>
 </td></tr>
 <tr><td style="padding:40px;">
-  <h1 style="margin:0 0 8px;font-size:24px;color:#111111;">Welcome to the Certificate Tracker, ${name || 'there'}.</h1>
+  <h1 style="margin:0 0 8px;font-size:24px;color:#111111;">Your tracker is live, ${name || 'there'}.</h1>
   <p style="margin:0 0 24px;color:#6b7280;font-size:15px;line-height:1.6;">
-    Your subscription is active. Add your properties and certificate expiry dates and we&#8217;ll send you
-    automated reminders at 60, 30, and 7 days before anything lapses.
+    Your subscription is active. Click below to open your Certificate Tracker. Add your properties,
+    enter your certificate expiry dates, and we&#8217;ll email you at 60, 30, and 7 days before anything lapses.
   </p>
-  <a href="${trackerUrl}" style="display:inline-block;background:#5B21B6;color:#ffffff;font-weight:700;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:24px;">
-    Open Your Tracker &rarr;
+  <a href="${trackerUrl}" style="display:inline-block;background:#5B21B6;color:#ffffff;font-weight:700;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:8px;">
+    Open my tracker &rarr;
   </a>
+  <p style="margin:0 0 24px;color:#6b7280;font-size:13px;">
+    Bookmark this link &#8212; it&#8217;s your personal tracker URL.
+  </p>
   <div style="background:#F8FAFC;border-radius:8px;padding:20px;margin-bottom:24px;">
-    <p style="margin:0 0 8px;font-weight:700;color:#111111;font-size:14px;">What the tracker monitors:</p>
+    <p style="margin:0 0 8px;font-weight:700;color:#111111;font-size:14px;">What we track for you:</p>
     <ul style="margin:0;padding-left:20px;color:#374151;font-size:14px;line-height:1.8;">
-      <li>Gas Safety Certificate (annual &#8212; fine up to &#163;6,000 if lapsed)</li>
-      <li>Electrical Installation Condition Report (every 5 years)</li>
-      <li>Energy Performance Certificate (every 10 years &#8212; C rating by 2030)</li>
-      <li>House in Multiple Occupation licence (every 5 years)</li>
-      <li>Private Rented Sector Database registration (opens late 2026)</li>
-      <li>Smoke &amp; carbon monoxide alarm checks</li>
+      <li>Gas Safety Certificate &#8212; annual, fine up to &#163;6,000</li>
+      <li>Electrical Safety Report (EICR) &#8212; every 5 years, fine up to &#163;30,000</li>
+      <li>Energy Performance Certificate (EPC) &#8212; every 10 years</li>
+      <li>HMO Licence &#8212; every 5 years</li>
+      <li>Smoke &amp; carbon monoxide alarms</li>
     </ul>
   </div>
-  <p style="margin:0 0 8px;font-size:14px;color:#374151;">
-    <strong>Bookmark your tracker link</strong> &#8212; you can access it any time from the link in this email
-    or by clicking &#8220;Access my tracker&#8221; on the website.
+  <p style="margin:0;font-size:14px;color:#374151;line-height:1.6;">
+    Your Document Pack is also included with your subscription &#8212;
+    <a href="${siteUrl}/download?session_id=${sessionId}" style="color:#5B21B6;">download it here</a>.
   </p>
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
   <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
-    Ready for Renting &#183; readyforrenting.uk &#183; &#163;7/month &#8212; cancel anytime from your account.<br>
-    Questions? Reply to this email.
+    Ready for Renting &#183; readyforrenting.uk &#183; Cancel anytime in two clicks.<br>
+    Questions? Reply to this email or contact help@readyforrenting.uk.
+  </p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function paymentConfirmationEmail(name, product, amount) {
+  var productName = product === 'pack' ? 'Document Pack'
+    : product === 'tracker_monthly' ? 'Certificate Tracker (Monthly)'
+    : product === 'tracker_yearly' ? 'Certificate Tracker (Yearly)'
+    : 'Ready for Renting';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#F8FAFC;font-family:'Inter',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(17,17,17,0.08);">
+<tr><td style="background:#111111;padding:32px 40px;">
+  <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;">Ready <span style="color:#5B21B6;">for</span> Renting</p>
+</td></tr>
+<tr><td style="padding:40px;">
+  <h1 style="margin:0 0 8px;font-size:24px;color:#111111;">Payment confirmed.</h1>
+  <p style="margin:0 0 24px;color:#6b7280;font-size:15px;line-height:1.6;">
+    Hi ${name || 'there'}, thanks for your purchase. Here&#8217;s your receipt.
+  </p>
+  <div style="background:#F8FAFC;border-radius:8px;padding:20px;margin-bottom:24px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:#374151;">
+      <tr><td style="padding:6px 0;font-weight:600;">Product</td><td style="padding:6px 0;text-align:right;">${productName}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:600;">Amount</td><td style="padding:6px 0;text-align:right;">&#163;${amount.toFixed(2)}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:600;">Date</td><td style="padding:6px 0;text-align:right;">${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</td></tr>
+    </table>
+  </div>
+  <p style="margin:0 0 8px;color:#6b7280;font-size:13px;line-height:1.6;">
+    A separate email with your product access is on its way. If you don&#8217;t see it within a few minutes, check your spam folder or reply to this email.
+  </p>
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+  <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
+    Ready for Renting &#183; readyforrenting.uk<br>
+    Questions? Email help@readyforrenting.uk
   </p>
 </td></tr>
 </table>
@@ -246,6 +313,8 @@ module.exports = async function(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
+  console.log('[Webhook] Event received:', event.type);
+
   var siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://readyforrenting.uk';
   var resendKey = process.env.RESEND_API_KEY;
   var notionKey = process.env.NOTION_API_KEY;
@@ -254,12 +323,15 @@ module.exports = async function(req, res) {
   if (event.type === 'checkout.session.completed') {
     var session = event.data.object;
     var email = session.customer_details && session.customer_details.email;
-    var name = (session.metadata && session.metadata.name) || '';
+    var name = (session.customer_details && session.customer_details.name) || '';
     var sessionId = session.id;
     var product = session.metadata && session.metadata.product;
+    var amountTotal = session.amount_total ? session.amount_total / 100 : 0;
 
-    // Fallback: Payment Links don't set metadata.product automatically.
-    // If product is still unknown, look up the line items by price ID.
+    console.log('[Webhook] Session:', sessionId, 'Email:', email, 'Amount: £' + amountTotal, 'Metadata product:', product);
+
+    // Fallback 1: Payment Links don't set metadata.product.
+    // Look up line items by price ID.
     if (!product && stripeKey) {
       try {
         var lineItems = await stripeGet('/checkout/sessions/' + sessionId + '/line_items?limit=5', stripeKey);
@@ -271,31 +343,58 @@ module.exports = async function(req, res) {
         var items = lineItems && lineItems.data;
         if (items && items.length > 0) {
           var priceId = items[0].price && items[0].price.id;
+          console.log('[Webhook] Line item price ID:', priceId);
           if (priceId && priceMap[priceId]) {
             product = priceMap[priceId];
-            console.log('[Webhook] Product identified from price ID:', priceId, '->', product);
+            console.log('[Webhook] Product from price ID:', product);
+          } else {
+            console.warn('[Webhook] Price ID not in map:', priceId);
           }
         }
       } catch(e) {
-        console.error('[Webhook] Failed to fetch line items:', e.message);
+        console.error('[Webhook] Line items lookup failed:', e.message || JSON.stringify(e));
       }
     }
-    var amountTotal = session.amount_total ? session.amount_total / 100 : 0;
 
-    console.log('[Webhook] Payment complete:', product, email, '£' + amountTotal);
+    // Fallback 2: identify product by amount as last resort
+    if (!product) {
+      if (amountTotal === 29) product = 'pack';
+      else if (amountTotal === 7) product = 'tracker_monthly';
+      else if (amountTotal === 59) product = 'tracker_yearly';
+      if (product) console.log('[Webhook] Product from amount fallback:', product);
+    }
 
-    // Log to Notion
+    // If product is STILL unknown, log a clear warning but still try to help the customer
+    if (!product) {
+      console.error('[Webhook] PRODUCT UNKNOWN after all fallbacks. Session:', sessionId, 'Amount: £' + amountTotal);
+      product = 'pack'; // default to pack so the customer at least gets something
+      console.warn('[Webhook] Defaulting to "pack" to ensure customer gets an email');
+    }
+
+    console.log('[Webhook] Final product:', product, 'for:', email);
+
+    // 1. Send payment confirmation email
+    if (resendKey && email) {
+      try {
+        await sendEmail(resendKey, email, 'Payment confirmed — Ready for Renting', paymentConfirmationEmail(name, product, amountTotal));
+        console.log('[Webhook] Payment confirmation email sent to:', email);
+      } catch(e) {
+        console.error('[Webhook] Confirmation email error:', e.message);
+      }
+    }
+
+    // 2. Log to Notion
     if (notionKey && email) {
       try {
         await logPurchaseToNotion(notionKey, {
-          email, name, product, amount: amountTotal, session_id: sessionId
+          email: email, name: name, product: product, amount: amountTotal, session_id: sessionId
         });
       } catch(e) {
         console.error('[Webhook] Notion log error:', e.message);
       }
     }
 
-    // Send email
+    // 3. Send product-specific email
     if (resendKey && email) {
       try {
         if (product === 'pack') {
@@ -305,22 +404,21 @@ module.exports = async function(req, res) {
 
         } else if (product === 'tracker_monthly' || product === 'tracker_yearly') {
           var welcomeHtml = trackerWelcomeEmail(name, siteUrl, sessionId);
-          await sendEmail(resendKey, email, 'Welcome to Ready for Renting Certificate Tracker', welcomeHtml);
+          await sendEmail(resendKey, email, 'Welcome to your Certificate Tracker — Ready for Renting', welcomeHtml);
           console.log('[Webhook] Tracker welcome email sent to:', email);
         }
       } catch(e) {
-        console.error('[Webhook] Email error:', e.message);
+        console.error('[Webhook] Product email error:', e.message);
       }
-    } else if (!resendKey) {
-      console.warn('[Webhook] RESEND_API_KEY not set — skipping email');
+    } else {
+      if (!resendKey) console.error('[Webhook] RESEND_API_KEY not set — NO emails sent');
+      if (!email) console.error('[Webhook] No customer email found — cannot send emails');
     }
   }
 
   if (event.type === 'customer.subscription.deleted') {
-    // Subscription cancelled — log it
     var sub = event.data.object;
     console.log('[Webhook] Subscription cancelled:', sub.id, sub.customer);
-    // Could send cancellation email here if we have customer email
   }
 
   return res.status(200).json({ received: true });

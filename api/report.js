@@ -166,61 +166,40 @@ function sanitise(v) {
 // The Notion REST API uses the display name of the property, NOT the MCP internal name.
 // So "Submitted" not "date:Submitted:start", etc.
 async function logToNotion(notionKey, name, email, formData, report) {
-  var today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  var today = new Date().toISOString().split('T')[0];
 
-  // Build properties object using exact Notion REST API format
+  console.log('[Notion] Logging submission for:', email, 'DB:', NOTION_DB_ID);
+
+  // Store the full report JSON so we can generate a PDF later when they purchase
+  var reportJson = '';
+  try { reportJson = JSON.stringify(report); } catch(e) { reportJson = '{}'; }
+
+  // Build properties — only include what we're confident about
+  // Title property is required; rich_text is safest for everything else
   var props = {
-    // Title property
-    'Email': {
-      title: [{ text: { content: email || 'unknown' } }]
-    },
-    // Name
-    'Name': {
-      rich_text: [{ text: { content: name || '' } }]
-    },
-    // Number
-    'Compliance Score': {
-      number: typeof report.compliance_score === 'number' ? report.compliance_score : 0
-    },
-    // Select - status from report
-    'Status': {
-      select: { name: report.status || 'Needs Attention' }
-    },
-    // Select - always Free User on first submission
-    'Lead Stage': {
-      select: { name: 'Free User' }
-    },
-    // Rich text fields
-    'Location': {
-      rich_text: [{ text: { content: formData.location || '' } }]
-    },
-    'Property Types': {
-      rich_text: [{ text: { content: Array.isArray(formData.propertyTypes) ? formData.propertyTypes.join(', ') : '' } }]
-    },
-    'Notes': {
-      rich_text: [{ text: { content: 'Auto-logged from free readiness guide. ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) + '.' } }]
-    },
-    // Date - property name is "Submitted" in the Notion REST API
-    'Submitted': {
-      date: { start: today }
-    }
+    'Email': { title: [{ text: { content: email || 'unknown' } }] },
+    'Name': { rich_text: [{ text: { content: name || '' } }] },
+    'Compliance Score': { number: typeof report.compliance_score === 'number' ? report.compliance_score : 0 },
+    'Status': { select: { name: report.status || 'Needs Attention' } },
+    'Lead Stage': { select: { name: 'Free User' } },
+    'Location': { rich_text: [{ text: { content: formData.location || '' } }] },
+    'Property Types': { rich_text: [{ text: { content: Array.isArray(formData.propertyTypes) ? formData.propertyTypes.join(', ') : '' } }] },
+    'Notes': { rich_text: [{ text: { content: 'Free compliance check. ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) } }] },
+    'Submitted': { date: { start: today } },
+    'Full Report': { rich_text: [{ text: { content: reportJson.substring(0, 2000) } }] }
   };
 
-  // Optional selects - only add if we have a valid mapping
+  // Optional selects
   var pcVal = PROPERTY_COUNT_MAP[formData.propertyCount];
   if (pcVal) props['Property Count'] = { select: { name: pcVal } };
-
   var astVal = HAS_AST_MAP[formData.hasAST];
   if (astVal) props['Has Fixed Term AST'] = { select: { name: astVal } };
-
   var raVal = RENT_ADVANCE_MAP[formData.rentAdvance];
   if (raVal) props['Rent In Advance'] = { select: { name: raVal } };
 
-  var body = JSON.stringify({
-    parent: { database_id: NOTION_DB_ID },
-    properties: props
-  });
+  var body = JSON.stringify({ parent: { database_id: NOTION_DB_ID }, properties: props });
 
+  // First attempt: with all properties
   var res;
   try {
     res = await fetch('https://api.notion.com/v1/pages', {
@@ -239,13 +218,38 @@ async function logToNotion(notionKey, name, email, formData, report) {
 
   if (!res.ok) {
     var errText = await res.text();
-    console.error('[Notion] API error ' + res.status + ':', errText.substring(0, 400));
-    // Common causes logged here for easier debugging in Vercel function logs:
-    // 401 - NOTION_API_KEY is wrong or expired
-    // 403 - Integration not connected to the database (see setup steps in this file)
-    // 400 - Property name mismatch or invalid value
+    console.error('[Notion] First attempt error ' + res.status + ':', errText.substring(0, 500));
+
+    // Retry with minimal properties (in case some property names don't exist in the DB)
+    console.log('[Notion] Retrying with minimal properties...');
+    var minProps = {
+      'Email': { title: [{ text: { content: email || 'unknown' } }] },
+      'Name': { rich_text: [{ text: { content: name || '' } }] }
+    };
+    var minBody = JSON.stringify({ parent: { database_id: NOTION_DB_ID }, properties: minProps });
+
+    try {
+      var res2 = await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + notionKey,
+          'Content-Type': 'application/json',
+          'Notion-Version': NOTION_API_VER
+        },
+        body: minBody
+      });
+      if (!res2.ok) {
+        var errText2 = await res2.text();
+        console.error('[Notion] Minimal retry also failed ' + res2.status + ':', errText2.substring(0, 500));
+        console.error('[Notion] LIKELY CAUSE: DB ID wrong, integration not connected, or "Email" is not the title property.');
+      } else {
+        console.log('[Notion] Minimal row created for:', email, '(some fields missing — check DB property names)');
+      }
+    } catch(err2) {
+      console.error('[Notion] Minimal retry network error:', err2.message);
+    }
   } else {
-    console.log('[Notion] Row created for:', email);
+    console.log('[Notion] Row created for:', email, '— score:', report.compliance_score);
   }
 }
 
